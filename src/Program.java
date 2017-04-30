@@ -50,7 +50,8 @@ class Program extends SProgram {
                         .apiProperty("api.version", "1.0.0")
                         // and enable CORS
                         .apiProperty("cors", "true")
-                        .enableCORS(true);;
+                        .apiProperty("host", "192.168.1.2:8283")
+                        .enableCORS(true);
 
                 rest("/games/alice/person")
                         .post().type(CreatePerson.class).outType(CreatePerson.class).to("direct:createPerson")
