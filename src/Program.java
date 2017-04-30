@@ -59,6 +59,9 @@ class Program extends SProgram {
                         .post("jump").to("direct:personJump")
                         .post("turn").type(org.cjug.kids.models.Move.class).to("direct:personTurn")
                         .post("move").type(org.cjug.kids.models.Move.class).to("direct:personMove");
+                
+                rest("/games/alice/camera")
+                        .post("move").type(org.cjug.kids.models.Move.class).to("direct:cameraMove");
 
                 from("direct:createPerson")
                         .process(new AsyncProcessor() {
@@ -96,7 +99,7 @@ class Program extends SProgram {
                                     childPerson.setName("childPerson1");
                                     childPerson.setVehicle(story.myScene);
                                     childPerson.setOrientationRelativeToVehicle(new Orientation(0.0, 0.0, 0.0, 1.0));
-                                    childPerson.setPositionRelativeToVehicle(new Position(userMap.size(), 0.0, userMap.size()));
+                                    childPerson.setPositionRelativeToVehicle(new Position(userMap.size()/5.0, 0.0, userMap.size()/5.0));
                                     childPerson.setScale(new Scale(1.0, 1.0, 1.0));
                                     //childPerson.say(userId, Say.duration(10));
                                     ac.done(true);
@@ -188,6 +191,38 @@ class Program extends SProgram {
                                         person.move(MoveDirection.UP, 0.5);
                                     } else if (direction.equalsIgnoreCase("down")) {
                                         person.move(MoveDirection.DOWN, 0.5);
+                                    }
+
+                                    ac.done(true);
+                                });
+                                return true;
+                            }
+
+                            @Override
+                            public void process(Exchange exchange) throws Exception {
+
+                            }
+                        });
+                
+                from("direct:cameraMove")
+                        .process(new AsyncProcessor() {
+                            public boolean process(Exchange exchange, AsyncCallback ac) {
+                                org.cjug.kids.models.Move body = exchange.getIn().getBody(org.cjug.kids.models.Move.class);
+                                String direction = body.getDirection();
+                                SCamera camera = story.myScene.getCamera();
+                                executor.submit(() -> {
+                                    if (direction.equalsIgnoreCase("forward")) {
+                                        camera.move(MoveDirection.FORWARD, 1.0);
+                                    } else if (direction.equalsIgnoreCase("backward")) {
+                                        camera.move(MoveDirection.BACKWARD, 1.0);
+                                    } else if (direction.equalsIgnoreCase("right")) {
+                                        camera.move(MoveDirection.RIGHT, 1.0);
+                                    } else if (direction.equalsIgnoreCase("left")) {
+                                        camera.move(MoveDirection.LEFT, 1.0);
+                                    } else if (direction.equalsIgnoreCase("up")) {
+                                        camera.move(MoveDirection.UP, 1.0);
+                                    } else if (direction.equalsIgnoreCase("down")) {
+                                        camera.move(MoveDirection.DOWN, 1.0);
                                     }
 
                                     ac.done(true);
